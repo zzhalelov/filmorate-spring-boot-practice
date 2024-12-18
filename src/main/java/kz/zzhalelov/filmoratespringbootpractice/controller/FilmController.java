@@ -1,11 +1,8 @@
 package kz.zzhalelov.filmoratespringbootpractice.controller;
 
 import kz.zzhalelov.filmoratespringbootpractice.model.Film;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +10,20 @@ import java.util.List;
 public class FilmController {
     List<Film> films = new ArrayList<>();
 
+    @PostMapping("/films")
+    public Film add(@RequestBody Film film) {
+        films.add(film);
+        return film;
+    }
+
+    @PutMapping("/films")
+    public Film update(@RequestBody Film film) {
+        films.add(film);
+        return film;
+    }
+
     @GetMapping("/films")
     public List<Film> getAll() {
-        films.add(new Film(1, "test", "description", LocalDate.of(2024, 1, 1), Duration.ofHours(2)));
         return films;
     }
 }
