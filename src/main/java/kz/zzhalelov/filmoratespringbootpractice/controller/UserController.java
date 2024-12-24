@@ -33,6 +33,7 @@ public class UserController {
             throw new NotFoundException("User not found");
         }
         users.put(user.getId(), user);
+        log.debug("User is updated");
         return user;
     }
 
