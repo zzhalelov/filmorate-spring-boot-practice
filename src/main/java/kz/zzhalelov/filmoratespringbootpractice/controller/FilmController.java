@@ -1,8 +1,10 @@
 package kz.zzhalelov.filmoratespringbootpractice.controller;
 
-import kz.zzhalelov.filmoratespringbootpractice.exception.FilmValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.exception.NotFoundException;
+import kz.zzhalelov.filmoratespringbootpractice.exception.ValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.model.Film;
+import kz.zzhalelov.filmoratespringbootpractice.service.FilmService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,56 +14,50 @@ import java.util.*;
 @RestController
 @Slf4j
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
-    private int counter = 1;
-
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
 
     @PostMapping
     public Film add(@RequestBody Film film) {
-        validate(film);
-        film.setId(getUniqueId());
-        films.put(film.getId(), film);
-        log.debug("Movie is added");
-        return film;
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        validate(film);
-        if (!films.containsKey(film.getId())) {
-            throw new NotFoundException("Film is not found");
-        }
-        films.put(film.getId(), film);
-        log.debug("Film is updated");
-        return film;
+//        validate(film);
+//        if (!films.containsKey(film.getId())) {
+//            throw new NotFoundException("Film is not found");
+//        }
+//        films.put(film.getId(), film);
+//        log.debug("Film is updated");
+        return filmService.update(film);
     }
+
+    @GetMapping("/popular")
+    public List<Film> getPopular(@RequestParam int count) {
+        return filmService.getTopFilms(count);
+    }
+
 
     @GetMapping
     public Collection<Film> getAll() {
-        return films.values();
+        return filmService.findAll();
     }
 
-    private void validate(Film film) {
-        if (film.getName() == null || film.getName().isEmpty()) {
-            log.warn("название не может быть пустым");
-            throw new FilmValidateException("название не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            log.warn("максимальная длина описания — 200 символов");
-            throw new FilmValidateException("максимальная длина описания — 200 символов");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("дата релиза — не раньше 28 декабря 1895 года");
-            throw new FilmValidateException("дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() <= 0) {
-            log.warn("продолжительность фильма должна быть положительной");
-            throw new FilmValidateException("продолжительность фильма должна быть положительной");
-        }
+
+    //    private int getUniqueId() {
+//        return counter++;
+//    }
+    @PutMapping("/{filmId}/like/{id}")
+    public void addLike(@PathVariable int filmId,
+                        @PathVariable int id) {
+        filmService.addLike(filmId, id);
     }
 
-    private int getUniqueId() {
-        return counter++;
+    @DeleteMapping("/{filmId}/like/{id}")
+    public void removeLike(@PathVariable int filmId,
+                           @PathVariable int id) {
+        filmService.removeLike(filmId, id);
     }
 }

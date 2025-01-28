@@ -1,66 +1,60 @@
 package kz.zzhalelov.filmoratespringbootpractice.controller;
 
-import kz.zzhalelov.filmoratespringbootpractice.exception.NotFoundException;
-import kz.zzhalelov.filmoratespringbootpractice.exception.UserValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.model.User;
+import kz.zzhalelov.filmoratespringbootpractice.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
 @Slf4j
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private int counter = 1;
+    private final UserService userService;
 
-    private final Map<Integer, User> users = new HashMap<>();
-
+    // controller -> service -> storage
     @PostMapping
     public User add(@RequestBody User user) {
-        validate(user);
-        user.setId(getUniqueId());
-        users.put(user.getId(), user);
-        log.debug("User added");
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
-        validate(user);
-        if (!users.containsKey(user.getId())) {
-            throw new NotFoundException("User not found");
-        }
-        users.put(user.getId(), user);
-        log.debug("User is updated");
-        return user;
+        return userService.update(user);
     }
 
     @GetMapping
     public Collection<User> getAll() {
-        return users.values();
+        return userService.findAll();
     }
 
-    private void validate(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("электронная почта не может быть пустой и должна содержать символ @");
-            throw new UserValidateException("электронная почта не может быть пустой и должна содержать символ @");
-        }
-        if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            log.warn("логин не может быть пустым и содержать пробелы");
-            throw new UserValidateException("логин не может быть пустым и содержать пробелы");
-        }
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("дата рождения не может быть в будущем");
-            throw new UserValidateException("дата рождения не может быть в будущем");
-        }
+    // PUT /users/{id}/friends/{friendId} — добавление в друзья.
+    @PutMapping("/{userId}/friends/{friendId}")
+    public void addFriend(@PathVariable int userId,
+                          @PathVariable int friendId) {
+        userService.addFriend(userId, friendId);
     }
 
-    private int getUniqueId() {
-        return counter++;
+    // DELETE /users/{id}/friends/{friendId} — удаление из друзей.
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public void removeFriend(@PathVariable int userId,
+                             @PathVariable int friendId) {
+        userService.removeFriend(userId, friendId);
+    }
+
+    // GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
+    @GetMapping("/{userId}/friends")
+    public List<User> getFriends(@PathVariable int userId) {
+        return userService.getFriends(userId);
+    }
+
+    // GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
+    @GetMapping("/{userId}/friends/common/{otherUserId}")
+    public List<User> getCommonFriends(@PathVariable int userId,
+                                       @PathVariable int otherUserId) {
+        return userService.getCommonFriends(userId, otherUserId);
     }
 }

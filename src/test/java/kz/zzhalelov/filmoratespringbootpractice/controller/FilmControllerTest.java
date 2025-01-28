@@ -1,6 +1,5 @@
 package kz.zzhalelov.filmoratespringbootpractice.controller;
 
-import kz.zzhalelov.filmoratespringbootpractice.exception.FilmValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.model.Film;
 import org.junit.jupiter.api.Test;
 
