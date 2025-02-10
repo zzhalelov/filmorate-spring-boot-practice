@@ -1,16 +1,16 @@
 package kz.zzhalelov.filmoratespringbootpractice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class User {
     private int id;
     private String email;
@@ -18,4 +18,5 @@ public class User {
     private String name;
     private LocalDate birthday;
     private final Set<Integer> friends = new HashSet<>();
+    private Map<Integer, String> friendsStatus = new HashMap<>();
 }

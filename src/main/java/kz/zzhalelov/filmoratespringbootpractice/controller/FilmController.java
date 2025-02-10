@@ -1,14 +1,11 @@
 package kz.zzhalelov.filmoratespringbootpractice.controller;
 
-import kz.zzhalelov.filmoratespringbootpractice.exception.NotFoundException;
-import kz.zzhalelov.filmoratespringbootpractice.exception.ValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.model.Film;
 import kz.zzhalelov.filmoratespringbootpractice.service.FilmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -25,12 +22,6 @@ public class FilmController {
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-//        validate(film);
-//        if (!films.containsKey(film.getId())) {
-//            throw new NotFoundException("Film is not found");
-//        }
-//        films.put(film.getId(), film);
-//        log.debug("Film is updated");
         return filmService.update(film);
     }
 
@@ -39,16 +30,16 @@ public class FilmController {
         return filmService.getTopFilms(count);
     }
 
-
     @GetMapping
     public Collection<Film> getAll() {
         return filmService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Film getById(@PathVariable int id) {
+        return filmService.findFilmById(id);
+    }
 
-    //    private int getUniqueId() {
-//        return counter++;
-//    }
     @PutMapping("/{filmId}/like/{id}")
     public void addLike(@PathVariable int filmId,
                         @PathVariable int id) {

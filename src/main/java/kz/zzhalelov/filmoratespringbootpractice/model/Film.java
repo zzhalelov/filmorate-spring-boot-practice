@@ -1,16 +1,14 @@
 package kz.zzhalelov.filmoratespringbootpractice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Film {
     private int id;
     private String name;
@@ -18,4 +16,6 @@ public class Film {
     private LocalDate releaseDate;
     private int duration;
     private final Set<Integer> likes = new HashSet<>(); // идентификаторы пользователей
+    private final Set<Genre> genres = new HashSet<>();
+    private Rating mpa;
 }

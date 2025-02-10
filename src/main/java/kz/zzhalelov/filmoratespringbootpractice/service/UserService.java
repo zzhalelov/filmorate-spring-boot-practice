@@ -3,21 +3,19 @@ package kz.zzhalelov.filmoratespringbootpractice.service;
 import kz.zzhalelov.filmoratespringbootpractice.exception.NotFoundException;
 import kz.zzhalelov.filmoratespringbootpractice.exception.ValidateException;
 import kz.zzhalelov.filmoratespringbootpractice.model.User;
+import kz.zzhalelov.filmoratespringbootpractice.storage.FriendStorage;
 import kz.zzhalelov.filmoratespringbootpractice.storage.UserStorage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final FriendStorage friendStorage;
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -39,54 +37,32 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    // добавления в друзья
     public void addFriend(int userId, int friendId) {
         // проверка, существует ли пользователь с идентификатором userId
         // проверка, существует ли пользователь с идентификатором friendId
         User user = findById(userId);
         User friend = findById(friendId);
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
-
-        userStorage.update(user);
-        userStorage.update(friend);
+        friendStorage.addFriendship(userId, friendId);
     }
 
-    // удаление друга
     public void removeFriend(int userId, int friendId) {
         User user = findById(userId);
         User friend = findById(friendId);
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-
-        userStorage.update(user);
-        userStorage.update(friend);
+        friendStorage.removeFriendship(userId, friendId);
     }
 
-    // Получение списка друзей определенного пользователя
-    // Set<Integer> -> List<User>
     public List<User> getFriends(int userId) {
         User user = findById(userId);
-        return user.getFriends().stream()
-                .map(friendId -> findById(friendId))
-                .collect(Collectors.toList());
+        return friendStorage.getFriends(userId);
     }
 
-    // Получение списка общих друзей между двумя пользователями
-    // Set<Integer> -> List<User>
     public List<User> getCommonFriends(int userId1, int userId2) {
         User user1 = findById(userId1);
         User user2 = findById(userId2);
 
-        Set<Integer> commonFriends = user1.getFriends().stream()
-                .filter(friendId -> user2.getFriends().contains(friendId))
-                .collect(Collectors.toSet());
-
-        return commonFriends.stream()
-                .map(friendId -> findById(friendId))
-                .collect(Collectors.toList());
+        return friendStorage.getCommonFriends(userId1, userId2);
     }
 
     private void validate(User user) {
